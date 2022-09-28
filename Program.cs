@@ -1,12 +1,19 @@
-using Blog;
-using Blog.Data;
-using Blog.services;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Http.Json;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
-using System.Text;
-using System.Text.Json.Serialization;
+global using Blog;
+global using Blog.Data;
+global using Blog.Extensions;
+global using Blog.Models;
+global using Blog.services;
+global using Blog.ViewModels;
+global using Microsoft.AspNetCore.Authentication.JwtBearer;
+global using Microsoft.AspNetCore.Mvc;
+global using Microsoft.AspNetCore.ResponseCompression;
+global using Microsoft.EntityFrameworkCore;
+global using Microsoft.Extensions.Caching.Memory;
+global using Microsoft.IdentityModel.Tokens;
+global using System.Collections.Generic;
+global using System.IO.Compression;
+global using System.Text;
+global using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 ConfigureAuthentication(builder);
@@ -18,6 +25,7 @@ LoadConfiguration(app);
 
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseResponseCompression();
 app.MapControllers();
 
 app.Run();
@@ -54,14 +62,14 @@ void ConfigureAuthentication(WebApplicationBuilder builder)
 
 void ConfigureMvs(WebApplicationBuilder builder)
 {
-    builder
-    .Services
-    .AddControllers()
-    .ConfigureApiBehaviorOptions(options =>
-    {
-        options.SuppressModelStateInvalidFilter = true;
-    })
-    .AddJsonOptions(j => 
+    builder.Services.AddMemoryCache();
+    builder.Services.AddResponseCompression(o => { o.Providers.Add<GzipCompressionProvider>(); });
+
+    builder.Services.Configure<GzipCompressionProviderOptions>(o => { o.Level = CompressionLevel.Optimal; });
+
+    builder.Services.AddControllers()
+    .ConfigureApiBehaviorOptions(o => { o.SuppressModelStateInvalidFilter = true; })
+    .AddJsonOptions(j =>
     {
         j.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles; //cancela o looping do json
         j.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault; //Ignora os objetos nulos

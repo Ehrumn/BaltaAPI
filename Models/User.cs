@@ -1,7 +1,4 @@
-using System.Text.Json.Serialization;
-
 namespace Blog.Models;
-
 public class User
 {
     public int Id { get; set; }

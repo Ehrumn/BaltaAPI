@@ -3,20 +3,11 @@
 public class ResultViewModel<T>
 {
 
-    public ResultViewModel(T data)
-    {
-        Data = data;
-    }
+    public ResultViewModel(T data) => Data = data;
 
-    public ResultViewModel(List<string> errors)
-    {
-        Errors = errors;
-    }
+    public ResultViewModel(List<string> errors) => Errors = errors;
 
-    public ResultViewModel(string errors)
-    {
-        Errors.Add(errors);
-    }
+    public ResultViewModel(string errors) => Errors.Add(errors);
 
     public ResultViewModel(T data, List<string> errors)
     {

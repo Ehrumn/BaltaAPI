@@ -1,23 +1,22 @@
-﻿using Blog.Data;
-using Blog.Extensions;
-using Blog.Models;
-using Blog.ViewModels;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-
-namespace Blog.Controllers;
+﻿namespace Blog.Controllers;
 
 [ApiController]
-public class CategoryController : Controller
+public class CategoryController : ControllerBase
 {
     [HttpGet("v1/categories")]
     public async Task<IActionResult> GetAsync(
+        [FromServices] IMemoryCache cache,
         [FromServices] BlogDataContext context)
     {
 
         try
         {
-            var categories = await context.Categories.ToListAsync();
+            var categories = cache.GetOrCreate("CategoriesCache", entry =>
+            {
+                entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(1);
+                return GetCategories(context);
+            });
+
             return Ok(new ResultViewModel<List<Category>>(categories));
         }
         catch
@@ -25,6 +24,9 @@ public class CategoryController : Controller
             return StatusCode(500, new ResultViewModel<List<Category>>("Falha interna no servidor"));
         }
     }
+
+    private List<Category> GetCategories(BlogDataContext context)
+    => context.Categories.ToList();
 
 
     [HttpGet("v1/categories/{id:int}")]

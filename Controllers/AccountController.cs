@@ -1,14 +1,5 @@
-﻿using Blog.Data;
-using Blog.Extensions;
-using Blog.Models;
-using Blog.services;
-using Blog.ViewModels;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-
-namespace Blog.Controllers
+﻿namespace Blog.Controllers
 {
-    
     [ApiController]
     public class AccountController : ControllerBase
     {
@@ -25,9 +16,10 @@ namespace Blog.Controllers
             {
                 Name = model.Name,
                 Email = model.Email,
-                Slug = model.Email.Replace("@", "-").Replace(".", "-");
-            }
+                Slug = model.Email.Replace("@", "-").Replace(".", "-")
+            };
 
+            return Ok(user);
         }
 
         [HttpPost("v1/accounts/login")]
